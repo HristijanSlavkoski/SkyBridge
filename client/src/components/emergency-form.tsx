@@ -667,6 +667,15 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
     }
   };
 
+  // Get form state and functions
+  const form = useForm<z.infer<ReturnType<typeof createFormSchema>>>({
+    resolver: zodResolver(createFormSchema(emergencyType.id)),
+    defaultValues: {
+      emergencyType: emergencyType.id,
+      severity: 5, // Default severity for slider
+    },
+  });
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
@@ -719,49 +728,6 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
                 <div className="relative h-3 w-3 rounded-full bg-red-600"></div>
               </div>
             </div>
-            
-            {!userLocation && (
-              <div className="mt-3 bg-gray-50 p-3 rounded-lg space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField
-                    control={form.control}
-                    name="latitude"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Latitude</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="e.g. 40.7128" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="longitude"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Longitude</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="e.g. -74.0060" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="locationDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location Description</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="e.g. Near Central Park, New York" />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3">
@@ -797,15 +763,41 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-900">Describe Your Situation</h3>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {getFormFields()}
-              
-              <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 font-semibold">
-                Request Medical Assistance
-              </Button>
-            </form>
-          </Form>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {!userLocation && (
+              <div className="bg-gray-50 p-3 rounded-lg space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Latitude</label>
+                    <Input 
+                      {...form.register("latitude")} 
+                      placeholder="e.g. 40.7128" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Longitude</label>
+                    <Input 
+                      {...form.register("longitude")} 
+                      placeholder="e.g. -74.0060" 
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Location Description</label>
+                  <Input 
+                    {...form.register("locationDescription")} 
+                    placeholder="e.g. Near Central Park, New York" 
+                  />
+                </div>
+              </div>
+            )}
+            
+            {getFormFields()}
+            
+            <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 font-semibold">
+              Request Medical Assistance
+            </Button>
+          </form>
         </CardContent>
       </Card>
 
