@@ -26,52 +26,138 @@ import { ArrowLeft, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 // Form schema will vary based on emergency type
+// Extend z.infer to include all possible form fields
+// This allows the form to handle all fields without TypeScript errors
 const createFormSchema = (emergencyType: number) => {
+  // Base schema with standard fields
   const baseSchema = z.object({
     emergencyType: z.number(),
     latitude: z.string().optional(),
     longitude: z.string().optional(),
     locationDescription: z.string().optional(),
+    // Include all possible fields for full type compatibility
+    symptoms: z.string().optional(),
+    duration: z.string().optional(),
+    severity: z.number().optional(),
+    conditions: z.object({
+      fever: z.boolean().optional(),
+      breathing: z.boolean().optional(),
+      pain: z.boolean().optional(),
+      dizziness: z.boolean().optional(),
+    }).optional(),
+    medicalNeed: z.string().optional(),
+    urgency: z.string().optional(),
+    travelMode: z.string().optional(),
+    medications: z.string().optional(),
+    prescription: z.boolean().optional(),
+    medicalCondition: z.string().optional(),
+    emergencyDescription: z.string().optional(),
+    numberOfPeople: z.string().optional(),
+    hazards: z.string().optional(),
+    terrainDescription: z.string().optional(),
+    landingZone: z.string().optional(),
   });
 
-  // Add specific fields based on emergency type
+  // Add specific validation requirements based on emergency type
   switch (emergencyType) {
     case 1: // Medical Consultation
-      return baseSchema.extend({
-        symptoms: z.string().min(5, "Please describe your symptoms"),
-        duration: z.string().min(1, "Please select duration"),
-        severity: z.number().min(1).max(10),
-        conditions: z.object({
-          fever: z.boolean().optional(),
-          breathing: z.boolean().optional(),
-          pain: z.boolean().optional(),
-          dizziness: z.boolean().optional(),
-        }),
+      return baseSchema.superRefine((data, ctx) => {
+        if (!data.symptoms || data.symptoms.length < 5) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please describe your symptoms (minimum 5 characters)",
+            path: ["symptoms"]
+          });
+        }
+        if (!data.duration) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select duration",
+            path: ["duration"]
+          });
+        }
+        if (!data.severity || data.severity < 1 || data.severity > 10) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please rate severity (1-10)",
+            path: ["severity"]
+          });
+        }
       });
     case 2: // Location-Based Finder
-      return baseSchema.extend({
-        medicalNeed: z.string().min(5, "Please describe what you're looking for"),
-        urgency: z.string().min(1, "Please select urgency level"),
-        travelMode: z.string().min(1, "Please select how you're traveling"),
+      return baseSchema.superRefine((data, ctx) => {
+        if (!data.medicalNeed || data.medicalNeed.length < 5) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please describe what you're looking for",
+            path: ["medicalNeed"]
+          });
+        }
+        if (!data.urgency) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select urgency level",
+            path: ["urgency"]
+          });
+        }
+        if (!data.travelMode) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select how you're traveling",
+            path: ["travelMode"]
+          });
+        }
       });
     case 3: // Medicine Delivery
-      return baseSchema.extend({
-        medications: z.string().min(5, "Please list the medications you need"),
-        prescription: z.boolean(),
-        medicalCondition: z.string().optional(),
+      return baseSchema.superRefine((data, ctx) => {
+        if (!data.medications || data.medications.length < 5) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please list the medications you need",
+            path: ["medications"]
+          });
+        }
       });
     case 4: // Emergency Personnel
-      return baseSchema.extend({
-        emergencyDescription: z.string().min(10, "Please describe the emergency situation"),
-        numberOfPeople: z.string().min(1, "Please indicate how many people need help"),
-        hazards: z.string().optional(),
+      return baseSchema.superRefine((data, ctx) => {
+        if (!data.emergencyDescription || data.emergencyDescription.length < 10) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please describe the emergency situation",
+            path: ["emergencyDescription"]
+          });
+        }
+        if (!data.numberOfPeople) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please indicate how many people need help",
+            path: ["numberOfPeople"]
+          });
+        }
       });
     case 5: // Helicopter Evacuation
-      return baseSchema.extend({
-        emergencyDescription: z.string().min(10, "Please describe the emergency in detail"),
-        numberOfPeople: z.string().min(1, "Please indicate how many people need evacuation"),
-        terrainDescription: z.string().min(5, "Please describe the terrain"),
-        landingZone: z.string().optional(),
+      return baseSchema.superRefine((data, ctx) => {
+        if (!data.emergencyDescription || data.emergencyDescription.length < 10) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please describe the emergency in detail",
+            path: ["emergencyDescription"]
+          });
+        }
+        if (!data.numberOfPeople) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please indicate how many people need evacuation",
+            path: ["numberOfPeople"]
+          });
+        }
+        if (!data.terrainDescription || data.terrainDescription.length < 5) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please describe the terrain",
+            path: ["terrainDescription"]
+          });
+        }
       });
     default:
       return baseSchema;
@@ -608,10 +694,11 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
               <span className="text-gray-700">
                 {userLocation ? 
                   userLocation.address || `${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}` : 
-                  "Detecting your location..."}
+                  form.getValues("latitude") ? `Manual: ${form.getValues("latitude")}, ${form.getValues("longitude")}` : 
+                  "Location required for emergency services"}
               </span>
               <span className={`bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full`}>
-                {userLocation ? `Accuracy: ${Math.round(userLocation.accuracy)}m` : "Accuracy: Pending"}
+                {userLocation ? `Accuracy: ${Math.round(userLocation.accuracy)}m` : "Manual location"}
               </span>
             </div>
             
@@ -625,17 +712,70 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
                 <div className="relative h-3 w-3 rounded-full bg-red-600"></div>
               </div>
             </div>
+            
+            {!userLocation && (
+              <div className="mt-3 bg-gray-50 p-3 rounded-lg space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="latitude"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Latitude</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="e.g. 40.7128" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="longitude"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Longitude</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="e.g. -74.0060" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="locationDescription"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location Description</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g. Near Central Park, New York" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3">
             <Button 
               className="flex-1 bg-secondary-500 hover:bg-secondary-600 text-white"
               onClick={() => useUserLocation().getLocation()}
+              type="button"
             >
               <MapPin className="mr-2 h-4 w-4" />
               Update Location
             </Button>
-            <Button variant="outline" className="flex-1">
+            <Button 
+              variant="outline" 
+              className="flex-1"
+              type="button"
+              onClick={() => {
+                form.setValue("latitude", "");
+                form.setValue("longitude", "");
+                form.setValue("locationDescription", "");
+              }}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
