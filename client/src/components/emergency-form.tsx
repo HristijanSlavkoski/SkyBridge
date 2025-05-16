@@ -16,6 +16,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -277,29 +279,34 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
             <FormField
               control={form.control}
               name="severity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Rate the severity (1-10)</FormLabel>
-                  <div className="flex items-center space-x-3">
-                    <FormControl>
-                      <Slider
-                        min={1}
-                        max={10}
-                        step={1}
-                        value={[field.value]}
-                        onValueChange={(value) => {
-                          field.onChange(value[0]);
-                          setSeverityValue(value[0]);
-                        }}
-                      />
-                    </FormControl>
-                    <span className="text-sm font-medium text-gray-700 w-8 text-center">
-                      {severityValue}
-                    </span>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // Ensure field.value is a number
+                const currentValue = typeof field.value === 'number' ? field.value : 5;
+                
+                return (
+                  <FormItem>
+                    <FormLabel>Rate the severity (1-10)</FormLabel>
+                    <div className="flex items-center space-x-3">
+                      <FormControl>
+                        <Slider
+                          min={1}
+                          max={10}
+                          step={1}
+                          value={[currentValue]}
+                          onValueChange={(value) => {
+                            field.onChange(value[0]);
+                            setSeverityValue(value[0]);
+                          }}
+                        />
+                      </FormControl>
+                      <span className="text-sm font-medium text-gray-700 w-8 text-center">
+                        {severityValue}
+                      </span>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             
             <FormItem>
@@ -799,7 +806,6 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
               Request Medical Assistance
             </Button>
           </form>
-          </Form>
         </CardContent>
       </Card>
 
