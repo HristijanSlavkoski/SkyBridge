@@ -7,17 +7,6 @@ import { useLocation, useRoute } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation as useUserLocation } from "@/lib/hooks/use-location";
 import { EmergencyType, getEmergencyTypeById } from "@/lib/emergency-types";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,8 +17,6 @@ import { ArrowLeft, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 // Form schema will vary based on emergency type
-// Extend z.infer to include all possible form fields
-// This allows the form to handle all fields without TypeScript errors
 const createFormSchema = (emergencyType: number) => {
   // Base schema with standard fields
   const baseSchema = z.object({
@@ -105,7 +92,7 @@ const createFormSchema = (emergencyType: number) => {
         if (!data.travelMode) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "Please select how you're traveling",
+            message: "Please select how you're able to travel",
             path: ["travelMode"]
           });
         }
@@ -119,20 +106,27 @@ const createFormSchema = (emergencyType: number) => {
             path: ["medications"]
           });
         }
+        if (!data.urgency) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select urgency level",
+            path: ["urgency"]
+          });
+        }
       });
-    case 4: // Emergency Personnel
+    case 4: // Medical Personnel Dispatch
       return baseSchema.superRefine((data, ctx) => {
         if (!data.emergencyDescription || data.emergencyDescription.length < 10) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "Please describe the emergency situation",
+            message: "Please describe the medical situation in detail",
             path: ["emergencyDescription"]
           });
         }
         if (!data.numberOfPeople) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "Please indicate how many people need help",
+            message: "Please indicate how many people need assistance",
             path: ["numberOfPeople"]
           });
         }
@@ -186,38 +180,29 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
       latitude: userLocation ? String(userLocation.latitude) : "",
       longitude: userLocation ? String(userLocation.longitude) : "",
       locationDescription: userLocation?.address || "",
-      // Default values specific to type - only applies to applicable types
-      ...(emergencyType.id === 1 && { 
-        symptoms: "",
-        duration: "",
-        severity: 5,
-        conditions: {
-          fever: false,
-          breathing: false,
-          pain: false,
-          dizziness: false,
-        }
-      }),
-      ...(emergencyType.id === 2 && {
-        medicalNeed: "",
-        urgency: "medium",
-        travelMode: "walking",
-      }),
+      severity: 5,
     },
   });
 
   const onSubmit = async (data: FormValues) => {
+    // Combine location data
+    if (userLocation) {
+      data.latitude = String(userLocation.latitude);
+      data.longitude = String(userLocation.longitude);
+      data.locationDescription = userLocation.address || "";
+    }
+    
     try {
-      const response = await apiRequest("POST", "/api/emergency-requests", data);
-      const responseData = await response.json();
-      
-      toast({
-        title: "Request submitted",
-        description: "Processing your emergency request...",
+      // Submit the form to the server
+      const response = await apiRequest<{id: number}>("/api/emergency-requests", {
+        method: "POST",
+        body: JSON.stringify(data),
       });
       
-      // Redirect to processing page
-      setLocation(`/processing/${responseData.id}`);
+      // If successful, navigate to processing page
+      if (response.id) {
+        setLocation(`/processing/${response.id}`);
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
       toast({
@@ -228,437 +213,333 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
     }
   };
 
+  // Different form fields based on emergency type
   const getFormFields = () => {
     switch (emergencyType.id) {
       case 1: // Medical Consultation
         return (
           <>
-            <FormField
-              control={form.control}
-              name="symptoms"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What symptoms are you experiencing?</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describe your symptoms in detail..." 
-                      rows={3}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Describe your symptoms</label>
+              <Textarea 
+                {...form.register("symptoms")} 
+                placeholder="Describe what you're experiencing..." 
+                rows={3}
+              />
+              {form.formState.errors.symptoms && (
+                <p className="text-sm text-red-500">{form.formState.errors.symptoms.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="duration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>How long have you had these symptoms?</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select duration" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="hours">A few hours</SelectItem>
-                      <SelectItem value="day">About a day</SelectItem>
-                      <SelectItem value="days">2-3 days</SelectItem>
-                      <SelectItem value="week">About a week</SelectItem>
-                      <SelectItem value="weeks">More than a week</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">How long have you had these symptoms?</label>
+              <Select 
+                onValueChange={(value) => form.setValue("duration", value)}
+                defaultValue={form.getValues("duration") || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hours">A few hours</SelectItem>
+                  <SelectItem value="today">Started today</SelectItem>
+                  <SelectItem value="days">A few days</SelectItem>
+                  <SelectItem value="week">About a week</SelectItem>
+                  <SelectItem value="longer">Longer than a week</SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.duration && (
+                <p className="text-sm text-red-500">{form.formState.errors.duration.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="severity"
-              render={({ field }) => {
-                // Ensure field.value is a number
-                const currentValue = typeof field.value === 'number' ? field.value : 5;
-                
-                return (
-                  <FormItem>
-                    <FormLabel>Rate the severity (1-10)</FormLabel>
-                    <div className="flex items-center space-x-3">
-                      <FormControl>
-                        <Slider
-                          min={1}
-                          max={10}
-                          step={1}
-                          value={[currentValue]}
-                          onValueChange={(value) => {
-                            field.onChange(value[0]);
-                            setSeverityValue(value[0]);
-                          }}
-                        />
-                      </FormControl>
-                      <span className="text-sm font-medium text-gray-700 w-8 text-center">
-                        {severityValue}
-                      </span>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-            
-            <FormItem>
-              <FormLabel>Do you have any of these conditions?</FormLabel>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <FormField
-                  control={form.control}
-                  name="conditions.fever"
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <label className="text-sm text-gray-700">Fever</label>
-                    </div>
-                  )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Rate the severity (1-10)</label>
+              <div className="flex items-center space-x-3">
+                <Slider
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={[form.getValues("severity") || 5]}
+                  onValueChange={(value) => {
+                    form.setValue("severity", value[0]);
+                    setSeverityValue(value[0]);
+                  }}
                 />
-                
-                <FormField
-                  control={form.control}
-                  name="conditions.breathing"
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <label className="text-sm text-gray-700">Difficulty breathing</label>
-                    </div>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="conditions.pain"
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <label className="text-sm text-gray-700">Severe pain</label>
-                    </div>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="conditions.dizziness"
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <label className="text-sm text-gray-700">Dizziness</label>
-                    </div>
-                  )}
-                />
+                <span className="text-sm font-medium text-gray-700 w-8 text-center">
+                  {severityValue}
+                </span>
               </div>
-            </FormItem>
+              {form.formState.errors.severity && (
+                <p className="text-sm text-red-500">{form.formState.errors.severity.message?.toString()}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Do you have any of these conditions?</label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="flex items-start space-x-3 p-2 bg-gray-50 rounded-md">
+                  <Checkbox
+                    checked={form.getValues("conditions.fever") || false}
+                    onCheckedChange={(checked) => form.setValue("conditions.fever", !!checked)}
+                  />
+                  <span className="text-sm font-medium">Fever</span>
+                </div>
+                <div className="flex items-start space-x-3 p-2 bg-gray-50 rounded-md">
+                  <Checkbox
+                    checked={form.getValues("conditions.breathing") || false}
+                    onCheckedChange={(checked) => form.setValue("conditions.breathing", !!checked)}
+                  />
+                  <span className="text-sm font-medium">Difficulty breathing</span>
+                </div>
+                <div className="flex items-start space-x-3 p-2 bg-gray-50 rounded-md">
+                  <Checkbox
+                    checked={form.getValues("conditions.pain") || false}
+                    onCheckedChange={(checked) => form.setValue("conditions.pain", !!checked)}
+                  />
+                  <span className="text-sm font-medium">Severe pain</span>
+                </div>
+                <div className="flex items-start space-x-3 p-2 bg-gray-50 rounded-md">
+                  <Checkbox
+                    checked={form.getValues("conditions.dizziness") || false}
+                    onCheckedChange={(checked) => form.setValue("conditions.dizziness", !!checked)}
+                  />
+                  <span className="text-sm font-medium">Dizziness/Fainting</span>
+                </div>
+              </div>
+            </div>
           </>
         );
         
       case 2: // Location-Based Finder
         return (
           <>
-            <FormField
-              control={form.control}
-              name="medicalNeed"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What type of medical facility are you looking for?</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="E.g., hospital, pharmacy, urgent care clinic..." 
-                      rows={3}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">What medical service are you looking for?</label>
+              <Textarea 
+                {...form.register("medicalNeed")} 
+                placeholder="E.g., pharmacy, clinic, hospital, specific medication..." 
+                rows={2}
+              />
+              <p className="text-xs text-gray-500">
+                Be as specific as possible to help us locate the right service for you
+              </p>
+              {form.formState.errors.medicalNeed && (
+                <p className="text-sm text-red-500">{form.formState.errors.medicalNeed.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="urgency"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>How urgent is your need?</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select urgency level" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="low">Low - Within 24 hours</SelectItem>
-                      <SelectItem value="medium">Medium - Within a few hours</SelectItem>
-                      <SelectItem value="high">High - As soon as possible</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">How urgent is your need?</label>
+              <Select 
+                onValueChange={(value) => form.setValue("urgency", value)}
+                defaultValue={form.getValues("urgency") || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select urgency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="now">Need immediately (within hours)</SelectItem>
+                  <SelectItem value="today">Need today</SelectItem>
+                  <SelectItem value="tomorrow">Need by tomorrow</SelectItem>
+                  <SelectItem value="week">Within the week</SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.urgency && (
+                <p className="text-sm text-red-500">{form.formState.errors.urgency.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="travelMode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>How are you traveling?</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select travel mode" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="walking">Walking</SelectItem>
-                      <SelectItem value="public">Public Transportation</SelectItem>
-                      <SelectItem value="car">Car/Taxi</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">How are you able to travel?</label>
+              <Select 
+                onValueChange={(value) => form.setValue("travelMode", value)}
+                defaultValue={form.getValues("travelMode") || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select travel method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="walking">Walking only</SelectItem>
+                  <SelectItem value="publicTransit">Public transportation</SelectItem>
+                  <SelectItem value="taxi">Taxi/Ride service</SelectItem>
+                  <SelectItem value="driving">I can drive</SelectItem>
+                  <SelectItem value="none">Unable to travel (need delivery)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                This helps us suggest locations within your mobility range
+              </p>
+              {form.formState.errors.travelMode && (
+                <p className="text-sm text-red-500">{form.formState.errors.travelMode.message?.toString()}</p>
               )}
-            />
+            </div>
           </>
         );
         
       case 3: // Medicine Delivery
         return (
           <>
-            <FormField
-              control={form.control}
-              name="medications"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What medications do you need?</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="List medications with dosage if known..." 
-                      rows={3}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">What medications do you need?</label>
+              <Textarea 
+                {...form.register("medications")} 
+                placeholder="List all medications you need delivered..." 
+                rows={3}
+              />
+              {form.formState.errors.medications && (
+                <p className="text-sm text-red-500">{form.formState.errors.medications.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="prescription"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-2">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>I have a prescription for these medications</FormLabel>
-                    <FormDescription>
-                      Prescription medications require valid documentation
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
+            <div className="flex items-start space-x-3 py-2">
+              <Checkbox
+                checked={form.getValues("prescription") || false}
+                onCheckedChange={(checked) => form.setValue("prescription", !!checked)}
+              />
+              <div>
+                <label className="text-sm font-medium">I have a prescription for these medications</label>
+                <p className="text-xs text-gray-500">
+                  You may need to provide prescription details or upload images later
+                </p>
+              </div>
+            </div>
             
-            <FormField
-              control={form.control}
-              name="medicalCondition"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Medical condition (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describe your medical condition..." 
-                      rows={2}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    This helps us prioritize your delivery
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">How urgent is your need?</label>
+              <Select 
+                onValueChange={(value) => form.setValue("urgency", value)}
+                defaultValue={form.getValues("urgency") || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select urgency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hours">Critical (within hours)</SelectItem>
+                  <SelectItem value="today">Urgent (today)</SelectItem>
+                  <SelectItem value="tomorrow">Soon (tomorrow)</SelectItem>
+                  <SelectItem value="days">Routine (next few days)</SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.urgency && (
+                <p className="text-sm text-red-500">{form.formState.errors.urgency.message?.toString()}</p>
               )}
-            />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Briefly describe your medical condition (optional)</label>
+              <Textarea 
+                {...form.register("medicalCondition")} 
+                placeholder="This helps us prioritize your request..." 
+                rows={2}
+              />
+            </div>
           </>
         );
         
-      case 4: // Emergency Personnel
+      case 4: // Medical Personnel Dispatch
         return (
           <>
-            <FormField
-              control={form.control}
-              name="emergencyDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Describe the emergency situation</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Provide detailed information about the emergency..." 
-                      rows={3}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Describe the medical situation</label>
+              <Textarea 
+                {...form.register("emergencyDescription")} 
+                placeholder="Please provide as much detail as possible..." 
+                rows={3}
+              />
+              {form.formState.errors.emergencyDescription && (
+                <p className="text-sm text-red-500">{form.formState.errors.emergencyDescription.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="numberOfPeople"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>How many people need assistance?</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select number of people" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">1 person</SelectItem>
-                      <SelectItem value="2-3">2-3 people</SelectItem>
-                      <SelectItem value="4-10">4-10 people</SelectItem>
-                      <SelectItem value="10+">More than 10 people</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">How many people need assistance?</label>
+              <Select 
+                onValueChange={(value) => form.setValue("numberOfPeople", value)}
+                defaultValue={form.getValues("numberOfPeople") || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select number of people" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 person</SelectItem>
+                  <SelectItem value="2-3">2-3 people</SelectItem>
+                  <SelectItem value="4-6">4-6 people</SelectItem>
+                  <SelectItem value="7+">More than 7 people</SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.numberOfPeople && (
+                <p className="text-sm text-red-500">{form.formState.errors.numberOfPeople.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="hazards"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Are there any hazards personnel should be aware of? (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="E.g., unstable structures, fires, floods..." 
-                      rows={2}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Are there any hazards or dangers in the area? (optional)</label>
+              <Textarea 
+                {...form.register("hazards")} 
+                placeholder="E.g., difficult terrain, dangerous wildlife, extreme weather..." 
+                rows={2}
+              />
+            </div>
           </>
         );
         
       case 5: // Helicopter Evacuation
         return (
           <>
-            <FormField
-              control={form.control}
-              name="emergencyDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Describe the emergency situation in detail</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Provide detailed information about the emergency..." 
-                      rows={3}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Describe the emergency situation</label>
+              <Textarea 
+                {...form.register("emergencyDescription")} 
+                placeholder="Please provide as much detail as possible..." 
+                rows={3}
+              />
+              {form.formState.errors.emergencyDescription && (
+                <p className="text-sm text-red-500">{form.formState.errors.emergencyDescription.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="numberOfPeople"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>How many people need evacuation?</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select number of people" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">1 person</SelectItem>
-                      <SelectItem value="2-3">2-3 people</SelectItem>
-                      <SelectItem value="4-6">4-6 people</SelectItem>
-                      <SelectItem value="7+">More than 7 people</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">How many people need evacuation?</label>
+              <Select 
+                onValueChange={(value) => form.setValue("numberOfPeople", value)}
+                defaultValue={form.getValues("numberOfPeople") || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select number of people" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 person</SelectItem>
+                  <SelectItem value="2-3">2-3 people</SelectItem>
+                  <SelectItem value="4-6">4-6 people</SelectItem>
+                  <SelectItem value="7+">More than 7 people</SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.numberOfPeople && (
+                <p className="text-sm text-red-500">{form.formState.errors.numberOfPeople.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="terrainDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Describe the terrain</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="E.g., mountainous, forested, open field..." 
-                      rows={2}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Describe the terrain</label>
+              <Textarea 
+                {...form.register("terrainDescription")} 
+                placeholder="E.g., mountainous, forested, open field..." 
+                rows={2}
+              />
+              {form.formState.errors.terrainDescription && (
+                <p className="text-sm text-red-500">{form.formState.errors.terrainDescription.message?.toString()}</p>
               )}
-            />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="landingZone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Potential landing zone information (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describe any suitable landing areas nearby..." 
-                      rows={2}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Potential landing zone information (optional)</label>
+              <Textarea 
+                {...form.register("landingZone")} 
+                placeholder="Describe any suitable landing areas nearby..." 
+                rows={2}
+              />
+            </div>
           </>
         );
         
@@ -666,15 +547,6 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
         return null;
     }
   };
-
-  // Get form state and functions
-  const form = useForm<z.infer<ReturnType<typeof createFormSchema>>>({
-    resolver: zodResolver(createFormSchema(emergencyType.id)),
-    defaultValues: {
-      emergencyType: emergencyType.id,
-      severity: 5, // Default severity for slider
-    },
-  });
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
