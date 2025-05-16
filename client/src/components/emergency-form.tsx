@@ -790,14 +790,15 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
         <CardContent className="p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-900">Describe Your Situation</h3>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Form {...form}>
               {getFormFields()}
-              
-              <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 font-semibold">
-                Request Medical Assistance
-              </Button>
-            </form>
+            </Form>
+            
+            <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 font-semibold">
+              Request Medical Assistance
+            </Button>
+          </form>
           </Form>
         </CardContent>
       </Card>

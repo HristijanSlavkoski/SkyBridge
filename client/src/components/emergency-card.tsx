@@ -37,29 +37,27 @@ const EmergencyCard = ({ type }: EmergencyCardProps) => {
   };
 
   return (
-    <Link href={`/emergency-form/${type.id}`}>
-      <a className="block">
-        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-          <div className={`p-1 ${headerColorClasses[type.id as keyof typeof headerColorClasses]}`}>
-            <div className={`${bannerColorClasses[type.id as keyof typeof bannerColorClasses]} text-white p-2 rounded-t-lg text-center`}>
-              <span className="font-semibold">Level {type.id}</span>
-            </div>
+    <Link href={`/emergency-form/${type.id}`} className="block">
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+        <div className={`p-1 ${headerColorClasses[type.id as keyof typeof headerColorClasses]}`}>
+          <div className={`${bannerColorClasses[type.id as keyof typeof bannerColorClasses]} text-white p-2 rounded-t-lg text-center`}>
+            <span className="font-semibold">Level {type.id}</span>
           </div>
-          <CardContent className="p-6">
-            <div className="flex items-center mb-4">
-              <div className={`h-12 w-12 rounded-full ${iconBgClasses[type.id as keyof typeof iconBgClasses]} flex items-center justify-center`}>
-                {type.icon}
-              </div>
-              <h3 className="ml-4 text-xl font-semibold text-gray-900">{type.title}</h3>
+        </div>
+        <CardContent className="p-6">
+          <div className="flex items-center mb-4">
+            <div className={`h-12 w-12 rounded-full ${iconBgClasses[type.id as keyof typeof iconBgClasses]} flex items-center justify-center`}>
+              {type.icon}
             </div>
-            <p className="text-gray-700 mb-4">{type.description}</p>
-            <div className="flex items-center text-gray-500 text-sm">
-              <Clock className="h-4 w-4 mr-1" />
-              <span>Estimated response: {type.estimatedResponse}</span>
-            </div>
-          </CardContent>
-        </Card>
-      </a>
+            <h3 className="ml-4 text-xl font-semibold text-gray-900">{type.title}</h3>
+          </div>
+          <p className="text-gray-700 mb-4">{type.description}</p>
+          <div className="flex items-center text-gray-500 text-sm">
+            <Clock className="h-4 w-4 mr-1" />
+            <span>Estimated response: {type.estimatedResponse}</span>
+          </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 };
