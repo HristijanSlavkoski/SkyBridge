@@ -8,6 +8,8 @@ import Home from "@/pages/home";
 import EmergencyForm from "@/pages/emergency-form";
 import Processing from "@/pages/processing";
 import Response from "@/pages/response";
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import EmergencySOS from "@/components/emergency-sos";
@@ -19,6 +21,8 @@ function Router() {
       <Route path="/emergency-form/:type" component={EmergencyForm} />
       <Route path="/processing/:id" component={Processing} />
       <Route path="/response/:id" component={Response} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
       <Route component={NotFound} />
     </Switch>
   );
