@@ -2,7 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "url"
+import dotenv from "dotenv";
+dotenv.config();
 
 // Convert the URL of this file into a filesystem path…
 const __filename = fileURLToPath(import.meta.url);

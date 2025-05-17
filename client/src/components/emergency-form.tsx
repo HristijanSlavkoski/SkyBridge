@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation, useRoute } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation as useUserLocation } from "@/lib/hooks/use-location";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { EmergencyType, getEmergencyTypeById } from "@/lib/emergency-types";
 import {
   Form,
@@ -24,6 +25,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+
+
+const mapContainerStyle = { width: "100%", height: "300px" };
+const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
 
 // Form schema will vary based on emergency type
 const createFormSchema = (emergencyType: number) => {
@@ -85,9 +91,14 @@ interface EmergencyFormProps {
 const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { location: userLocation } = useUserLocation();
   const [severityValue, setSeverityValue] = useState(5);
-  
+    const {
+        location: userLocation,
+        error: locationError,
+        loading: locationLoading,
+        getLocation: fetchLocation
+    } = useUserLocation();
+
   const formSchema = createFormSchema(emergencyType.id);
   type FormValues = z.infer<typeof formSchema>;
 
@@ -599,51 +610,65 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
       </div>
 
       {/* Location Information */}
-      <Card className="mb-8">
+    <Card className="mb-8">
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Your Location</h3>
-          
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-700">
-                {userLocation ? 
-                  userLocation.address || `${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}` : 
-                  "Detecting your location..."}
-              </span>
-              <span className={`bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full`}>
-                {userLocation ? `Accuracy: ${Math.round(userLocation.accuracy)}m` : "Accuracy: Pending"}
-              </span>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">Your Location</h3>
+
+            <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+    <span className="text-gray-700">
+      {userLocation
+          ? userLocation.address ||
+          `${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}`
+          : "Detecting your location..."}
+    </span>
+                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+      {userLocation
+          ? `Accuracy: ${Math.round(userLocation.accuracy)}m`
+          : "Accuracy: Pending"}
+    </span>
+                </div>
+
+                {/* ==== HERE’S THE GOOGLE MAP ==== */}
+                {userLocation ? (
+                    <LoadScript googleMapsApiKey={apiKey}>
+                        <GoogleMap
+                            mapContainerStyle={mapContainerStyle}
+                            center={{
+                                lat: userLocation.latitude,
+                                lng: userLocation.longitude,
+                            }}
+                            zoom={15}
+                        >
+                            <Marker
+                                position={{
+                                    lat: userLocation.latitude,
+                                    lng: userLocation.longitude,
+                                }}
+                            />
+                        </GoogleMap>
+                    </LoadScript>
+                ) : (
+                    <div className="flex items-center justify-center h-48 bg-gray-200 rounded-lg">
+                        <p className="text-gray-600">Loading map…</p>
+                    </div>
+                )}
             </div>
-            
-            {/* Map placeholder - would be replaced with real map */}
-            <div className="relative w-full h-48 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
-              <p className="text-gray-600">
-                Map view showing your current location
-              </p>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="animate-ping absolute h-5 w-5 rounded-full bg-red-500 opacity-75"></div>
-                <div className="relative h-3 w-3 rounded-full bg-red-600"></div>
-              </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                    className="flex-1 bg-secondary-500 hover:bg-secondary-600 text-white"
+                    onClick={fetchLocation}
+                >
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Update Location
+                </Button>
+                <Button variant="outline" className="flex-1">
+                    {/* ...manual entry button */}
+                </Button>
             </div>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button 
-              className="flex-1 bg-secondary-500 hover:bg-secondary-600 text-white"
-              onClick={() => useUserLocation().getLocation()}
-            >
-              <MapPin className="mr-2 h-4 w-4" />
-              Update Location
-            </Button>
-            <Button variant="outline" className="flex-1">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Enter Manually
-            </Button>
-          </div>
         </CardContent>
-      </Card>
+    </Card>
 
       {/* Emergency Form */}
       <Card className="mb-8">

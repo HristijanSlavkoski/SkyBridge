@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 
+const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+
 interface LocationData {
   latitude: number;
   longitude: number;
@@ -19,14 +22,27 @@ export function useLocation(): LocationHook {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Get address using reverse geocoding
-  const getAddressFromCoords = async (lat: number, lng: number): Promise<string | undefined> => {
+  const getAddressFromCoords = async (
+      lat: number,
+      lng: number
+  ): Promise<string | undefined> => {
     try {
-      // In a real application, you would use a geocoding service like Google Maps, Mapbox, etc.
-      // For this demo, we'll just return a mock address
-      return "1234 Example Street, City, Country";
-    } catch (error) {
-      console.error("Error getting address:", error);
+      console.log("🔑 Google key:", import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
+      const res = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json() as {
+        results?: { formatted_address: string }[];
+        status: string;
+      };
+      if (data.status !== "OK" || !data.results?.length) {
+        console.warn("Geocode lookup failed:", data.status);
+        return undefined;
+      }
+      return data.results[0].formatted_address;
+    } catch (err) {
+      console.error("Error reverse-geocoding coords:", err);
       return undefined;
     }
   };
@@ -45,7 +61,7 @@ export function useLocation(): LocationHook {
       async (position) => {
         const { latitude, longitude, accuracy } = position.coords;
         const address = await getAddressFromCoords(latitude, longitude);
-        
+
         setLocation({
           latitude,
           longitude,
@@ -73,6 +89,11 @@ export function useLocation(): LocationHook {
       }
     );
   }, []);
+
+    useEffect(() => {
+        // Automatically get location when the component mounts
+        getLocation();
+    }, [getLocation]);
 
   return { location, error, loading, getLocation };
 }
