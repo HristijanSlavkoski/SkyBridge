@@ -81,8 +81,8 @@ const Contact = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Email Us</h3>
               <p className="text-gray-700 mb-3">Our team is ready to help</p>
-              <a href="mailto:info@skybridgehealth.com" className="text-primary-600 hover:underline">
-                info@skybridgehealth.com
+              <a href="mailto:info@skybridge.com" className="text-primary-600 hover:underline">
+                info@skybridge.com
               </a>
             </CardContent>
           </Card>
@@ -94,8 +94,8 @@ const Contact = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Call Us</h3>
               <p className="text-gray-700 mb-3">24/7 support available</p>
-              <a href="tel:+1-555-SKYBRIDGE" className="text-secondary-600 hover:underline">
-                +1-555-SKYBRIDGE
+              <a href="tel:+389-77 123456-SkyBridge" className="text-secondary-600 hover:underline">
+                +389-77 123456 SkyBridge
               </a>
             </CardContent>
           </Card>
@@ -108,8 +108,8 @@ const Contact = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Visit Us</h3>
               <p className="text-gray-700 mb-3">Our headquarters</p>
               <address className="not-italic text-gray-700">
-                1234 Innovation Way<br />
-                Tech District, CA 94103
+                Netaville<br />
+                Skopje
               </address>
             </CardContent>
           </Card>

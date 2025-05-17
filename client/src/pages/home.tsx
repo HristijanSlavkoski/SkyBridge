@@ -21,9 +21,18 @@ const Home = () => {
       </Helmet>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Emergency Medical Assistance</h2>
-          <p className="text-xl text-gray-600">Select the type of medical assistance you need:</p>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center space-y-6">
+            <h1 className="text-5xl font-extrabold text-gray-900 tracking-tight">SkyBridge</h1>
+
+            <p className="text-xl italic text-primary-600">
+              Always within reach – even when the world isn’t
+            </p>
+
+            <p className="text-lg text-gray-700">
+              Select the type of medical assistance you need:
+            </p>
+          </div>
         </div>
 
         <LocationBanner />
