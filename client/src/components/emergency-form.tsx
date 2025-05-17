@@ -92,6 +92,7 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [severityValue, setSeverityValue] = useState(5);
+    const [communicationMethod, setCommunicationMethod] = useState<string | null>(null);
     const {
         location: userLocation,
         error: locationError,
@@ -154,7 +155,7 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
   const getFormFields = () => {
     switch (emergencyType.id) {
       case 1: // Medical Consultation
-        return (
+          return (
           <>
             <FormField
               control={form.control}
@@ -610,65 +611,76 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
       </div>
 
       {/* Location Information */}
-    <Card className="mb-8">
-        <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Your Location</h3>
-
-            <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-    <span className="text-gray-700">
-      {userLocation
-          ? userLocation.address ||
-          `${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}`
-          : "Detecting your location..."}
-    </span>
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-      {userLocation
-          ? `Accuracy: ${Math.round(userLocation.accuracy)}m`
-          : "Accuracy: Pending"}
-    </span>
-                </div>
-
-                {/* ==== HERE’S THE GOOGLE MAP ==== */}
-                {userLocation ? (
-                    <LoadScript googleMapsApiKey={apiKey}>
-                        <GoogleMap
-                            mapContainerStyle={mapContainerStyle}
-                            center={{
-                                lat: userLocation.latitude,
-                                lng: userLocation.longitude,
-                            }}
-                            zoom={15}
-                        >
-                            <Marker
-                                position={{
-                                    lat: userLocation.latitude,
-                                    lng: userLocation.longitude,
-                                }}
-                            />
-                        </GoogleMap>
-                    </LoadScript>
-                ) : (
-                    <div className="flex items-center justify-center h-48 bg-gray-200 rounded-lg">
-                        <p className="text-gray-600">Loading map…</p>
+        {emergencyType.id !== 1 ? (
+            // SHOW LOCATION ONLY IF NOT TYPE 1
+            <Card className="mb-8">
+                <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900">Your Location</h3>
+                    <div className="mb-4">
+                        <div className="flex items-center justify-between mb-2">
+          <span className="text-gray-700">
+            {userLocation
+                ? userLocation.address ||
+                `${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}`
+                : "Detecting your location..."}
+          </span>
+                            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+            {userLocation
+                ? `Accuracy: ${Math.round(userLocation.accuracy)}m`
+                : "Accuracy: Pending"}
+          </span>
+                        </div>
+                        {userLocation ? (
+                            <LoadScript googleMapsApiKey={apiKey}>
+                                <GoogleMap
+                                    mapContainerStyle={mapContainerStyle}
+                                    center={{
+                                        lat: userLocation.latitude,
+                                        lng: userLocation.longitude,
+                                    }}
+                                    zoom={15}
+                                >
+                                    <Marker
+                                        position={{
+                                            lat: userLocation.latitude,
+                                            lng: userLocation.longitude,
+                                        }}
+                                    />
+                                </GoogleMap>
+                            </LoadScript>
+                        ) : (
+                            <div className="flex items-center justify-center h-48 bg-gray-200 rounded-lg">
+                                <p className="text-gray-600">Loading map…</p>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                    className="flex-1 bg-secondary-500 hover:bg-secondary-600 text-white"
-                    onClick={fetchLocation}
-                >
-                    <MapPin className="mr-2 h-4 w-4" />
-                    Update Location
-                </Button>
-                <Button variant="outline" className="flex-1">
-                    {/* ...manual entry button */}
-                </Button>
-            </div>
-        </CardContent>
-    </Card>
+                </CardContent>
+            </Card>
+        ) : (
+            // SHOW COMMUNICATION METHOD ONLY FOR TYPE 1
+            <Card className="mb-8">
+                <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-900">Preferred Communication Method</h3>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        {["Text/Chat", "Audio", "Video"].map((method) => (
+                            <Button
+                                key={method}
+                                variant={communicationMethod === method ? "default" : "outline"}
+                                className="fle x-1"
+                                onClick={() => setCommunicationMethod(method)}
+                            >
+                                {method}
+                            </Button>
+                        ))}
+                    </div>
+                    {communicationMethod && (
+                        <p className="mt-3 text-sm text-gray-600">
+                            You selected <strong>{communicationMethod}</strong> consultation.
+                        </p>
+                    )}
+                </CardContent>
+            </Card>
+        )}
 
       {/* Emergency Form */}
       <Card className="mb-8">
@@ -679,7 +691,7 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {getFormFields()}
               
-              <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 font-semibold">
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 font-semibold">
                 Request Medical Assistance
               </Button>
             </form>
