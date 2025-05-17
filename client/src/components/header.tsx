@@ -13,9 +13,9 @@ const Header = () => {
     <header className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
-          <Logo className="mr-3" />
+          <img src="/logo.png" alt="SkyBridge Logo" className="mr-3 w-30 h-20" />
           <div>
-            <h1 className="text-xl font-bold text-gray-900">EmergencyMed Connect</h1>
+            <h1 className="text-xl font-bold text-gray-900">SkyBridge</h1>
             <p className="text-xs text-gray-600">Satellite Medical Assistance</p>
           </div>
         </Link>

@@ -4,8 +4,8 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>About SkyBridge - EmergencyMed Connect</title>
-        <meta name="description" content="Learn about the SkyBridge hackathon team behind EmergencyMed Connect and our mission to provide satellite-powered emergency medical assistance anywhere in the world." />
+        <title>About SkyBridge</title>
+        <meta name="description" content="Learn about the SkyBridge hackathon and our mission to provide satellite-powered emergency medical assistance anywhere in the world." />
       </Helmet>
       
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -26,7 +26,7 @@ const About = () => {
           <div className="px-6 py-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">The SkyBridge Hackathon Team</h3>
             <p className="text-gray-700 mb-6">
-              Our team came together during a health innovation hackathon with a shared vision: to create a solution that could save lives in the most remote parts of the world. With backgrounds in satellite communications, emergency medicine, and software development, we built EmergencyMed Connect to address a critical need for global emergency response.
+              Our team came together during a health innovation hackathon with a shared vision: to create a solution that could save lives in the most remote parts of the world. With backgrounds in satellite communications, emergency medicine, and software development, we built SkyBridge to address a critical need for global emergency response.
             </p>
             
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Why We Built This</h3>
@@ -43,7 +43,7 @@ const About = () => {
             
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Our Technology</h3>
             <p className="text-gray-700 mb-4">
-              EmergencyMed Connect integrates with the Galileo SAR satellite constellation to provide:
+              SkyBridge integrates with the Galileo SAR satellite constellation to provide:
             </p>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>Real-time location tracking with meter-level accuracy</li>

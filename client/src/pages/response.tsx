@@ -69,7 +69,7 @@ const Response = () => {
   return (
     <>
       <Helmet>
-        <title>Help is on the way - EmergencyMed Connect</title>
+        <title>Help is on the way - SkyBridge</title>
         <meta name="description" content={`Your ${emergencyType.title.toLowerCase()} assistance request has been processed. Follow the instructions provided to receive help.`} />
       </Helmet>
       

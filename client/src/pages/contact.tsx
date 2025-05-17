@@ -61,15 +61,15 @@ const Contact = () => {
   return (
     <>
       <Helmet>
-        <title>Contact Us - EmergencyMed Connect</title>
-        <meta name="description" content="Get in touch with the SkyBridge team behind EmergencyMed Connect. We're here to answer your questions about our satellite-powered emergency medical assistance platform." />
+        <title>Contact Us - SkyBridge</title>
+        <meta name="description" content="Get in touch with the SkyBridge team. We're here to answer your questions about our satellite-powered emergency medical assistance platform." />
       </Helmet>
       
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact SkyBridge</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Have questions about EmergencyMed Connect? We're here to help.
+            Have questions about SkyBridge? We're here to help.
           </p>
         </div>
         

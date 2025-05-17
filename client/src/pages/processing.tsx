@@ -143,7 +143,7 @@ const Processing = () => {
   return (
     <>
       <Helmet>
-        <title>Processing Your Request - EmergencyMed Connect</title>
+        <title>Processing Your Request - SkyBridge</title>
         <meta name="description" content="Your emergency request is being processed. We're connecting to satellite services to provide you with the best assistance." />
       </Helmet>
     

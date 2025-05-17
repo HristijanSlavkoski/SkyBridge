@@ -16,7 +16,7 @@ const Home = () => {
   return (
     <>
       <Helmet>
-        <title>EmergencyMed Connect - Satellite Medical Assistance</title>
+        <title>SkyBridge - Satellite Medical Assistance</title>
         <meta name="description" content="Get emergency medical assistance anywhere in the world with satellite connectivity. Choose from five levels of medical support based on your situation." />
       </Helmet>
       

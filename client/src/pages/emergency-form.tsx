@@ -30,8 +30,8 @@ const EmergencyForm = () => {
   return (
     <>
       <Helmet>
-        <title>{emergencyType.title} - EmergencyMed Connect</title>
-        <meta name="description" content={`Request ${emergencyType.title.toLowerCase()} assistance through EmergencyMed Connect's satellite emergency service. ${emergencyType.description}`} />
+        <title>{emergencyType.title} - SkyBridge</title>
+        <meta name="description" content={`Request ${emergencyType.title.toLowerCase()} assistance through SkyBridge's satellite emergency service. ${emergencyType.description}`} />
       </Helmet>
       
       <EmergencyFormComponent emergencyType={emergencyType} />

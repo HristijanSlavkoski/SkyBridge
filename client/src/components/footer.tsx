@@ -4,7 +4,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">EmergencyMed Connect</h3>
+            <h3 className="text-lg font-semibold mb-4">SkyBridge</h3>
             <p className="text-gray-400 text-sm">Global satellite-powered emergency medical assistance for any situation, anywhere in the world.</p>
           </div>
           <div>
@@ -28,7 +28,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} EmergencyMed Connect. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SkyBridge. All rights reserved.</p>
         </div>
       </div>
     </footer>
