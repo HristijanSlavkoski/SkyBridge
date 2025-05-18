@@ -168,3 +168,6 @@ Paste the following **ABCL (Asset-Based Converter Language)** configuration into
 ]
 ```
 >⚠️ Make sure each asset is added as a Virtual Sensor with matching data type and parsing config.
+>
+
+References: https://github.com/allthingstalk/cassini-hackathons
