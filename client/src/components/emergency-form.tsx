@@ -72,13 +72,6 @@ const createFormSchema = (emergencyType: number) => {
         numberOfPeople: z.string().min(1, "Please indicate how many people need help"),
         hazards: z.string().optional(),
       });
-    case 5: // Helicopter Evacuation
-      return baseSchema.extend({
-        emergencyDescription: z.string().min(10, "Please describe the emergency in detail"),
-        numberOfPeople: z.string().min(1, "Please indicate how many people need evacuation"),
-        terrainDescription: z.string().min(5, "Please describe the terrain"),
-        landingZone: z.string().optional(),
-      });
     default:
       return baseSchema;
   }
@@ -497,90 +490,6 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
             />
           </>
         );
-        
-      case 5: // Helicopter Evacuation
-        return (
-          <>
-            <FormField
-              control={form.control}
-              name="emergencyDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Describe the emergency situation in detail</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Provide detailed information about the emergency..." 
-                      rows={3}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="numberOfPeople"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>How many people need evacuation?</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select number of people" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="1">1 person</SelectItem>
-                      <SelectItem value="2-3">2-3 people</SelectItem>
-                      <SelectItem value="4-6">4-6 people</SelectItem>
-                      <SelectItem value="7+">More than 7 people</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="terrainDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Describe the terrain</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="E.g., mountainous, forested, open field..." 
-                      rows={2}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="landingZone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Potential landing zone information (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describe any suitable landing areas nearby..." 
-                      rows={2}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        );
-        
       default:
         return null;
     }
@@ -602,7 +511,7 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
       {/* Emergency Type Header */}
       <div className="mb-8 text-center">
         <div className="inline-block rounded-full bg-blue-100 p-3 mb-4">
-          <div className={`h-12 w-12 rounded-full bg-${emergencyType.id === 1 ? 'secondary' : emergencyType.id === 2 ? 'green' : emergencyType.id === 3 ? 'yellow' : emergencyType.id === 4 ? 'orange' : 'red'}-500 flex items-center justify-center text-white`}>
+          <div className={`h-12 w-12 rounded-full bg-${emergencyType.id === 1 ? 'secondary' : emergencyType.id === 2 ? 'green' : emergencyType.id === 3 ? 'yellow' : emergencyType.id === 4 ? 'red' : 'red'}-500 flex items-center justify-center text-white`}>
             {emergencyType.icon}
           </div>
         </div>

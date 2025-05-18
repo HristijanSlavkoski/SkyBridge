@@ -14,7 +14,6 @@ const Footer = () => {
               <li><a href="/emergency-form/2" className="hover:text-white">Hospital Finder</a></li>
               <li><a href="/emergency-form/3" className="hover:text-white">Medicine Delivery</a></li>
               <li><a href="/emergency-form/4" className="hover:text-white">Emergency Response</a></li>
-              <li><a href="/emergency-form/5" className="hover:text-white">Helicopter Evacuation</a></li>
             </ul>
           </div>
           <div>

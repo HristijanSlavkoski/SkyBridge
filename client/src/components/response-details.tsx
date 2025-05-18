@@ -15,7 +15,7 @@ const ResponseDetails = ({ request, emergencyType }: ResponseDetailsProps) => {
       case 1: return "bg-secondary-500";
       case 2: return "bg-green-500";
       case 3: return "bg-yellow-500";
-      case 4: return "bg-orange-500";
+      case 4: return "bg-red-600";
       case 5: return "bg-red-600";
       default: return "bg-secondary-500";
     }

@@ -44,13 +44,6 @@ export const emergencyTypes: EmergencyType[] = [
     estimatedResponse: "15-60 minutes",
     icon: React.createElement(Ambulance, { className: "text-2xl" })
   },
-  {
-    id: 5,
-    title: "Helicopter Evacuation",
-    description: "Request helicopter evacuation for life-threatening emergencies in inaccessible terrain.",
-    estimatedResponse: "1-4 hours",
-    icon: React.createElement(Plane, { className: "text-2xl" })
-  }
 ];
 
 export function getEmergencyTypeById(id: number): EmergencyType | undefined {
