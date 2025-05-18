@@ -4,12 +4,23 @@ import { storage } from "./storage";
 import { insertEmergencyRequestSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import {forwardCoordsToArduino, forwardMessageToArduino} from "./forwardCoordsToArduino";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Emergency requests endpoints
   app.post("/api/emergency-requests", async (req, res) => {
     try {
       const validatedData = insertEmergencyRequestSchema.parse(req.body);
+
+      // 🌍 If coordinates exist, send them to Arduino
+      if (validatedData.latitude && validatedData.longitude && validatedData.emergencyType) {
+        const lat = parseFloat(validatedData.latitude);
+        const lng = parseFloat(validatedData.longitude);
+        const id = validatedData.emergencyType;
+        forwardCoordsToArduino(lat, lng, id); // NEW: includes ID
+      }
+
+
       const emergencyRequest = await storage.createEmergencyRequest(validatedData);
       res.status(201).json(emergencyRequest);
     } catch (error) {
@@ -53,6 +64,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     res.json(updatedRequest);
+  });
+
+  app.get("/api/test", (_req, res) => {
+    // ✅ Forward message to Arduino
+    forwardMessageToArduino("COORDS:41.9981,21.4254"); // example Skopje coords
+
+    res.json({ message: "hello from server!" });
   });
 
   // Mock Galileo SAR integration endpoint

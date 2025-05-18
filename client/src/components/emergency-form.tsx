@@ -123,27 +123,43 @@ const EmergencyForm = ({ emergencyType }: EmergencyFormProps) => {
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      const response = await apiRequest("POST", "/api/emergency-requests", data);
-      const responseData = await response.json();
-      
-      toast({
-        title: "Request submitted",
-        description: "Processing your emergency request...",
-      });
-      
-      // Redirect to processing page
-      setLocation(`/processing/${responseData.id}`);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast({
-        title: "Error",
-        description: "Failed to submit your request. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+    const onSubmit = async (data: FormValues) => {
+        if (!userLocation?.latitude || !userLocation?.longitude || !emergencyType?.id) {
+            toast({
+                title: "Missing info",
+                description: "Make sure location and emergency type are selected.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        const payload = {
+            ...data,
+            latitude: String(userLocation.latitude),
+            longitude: String(userLocation.longitude),
+            emergencyType: emergencyType.id,
+        };
+
+        try {
+            const response = await apiRequest("POST", "/api/emergency-requests", payload);
+            const responseData = await response.json();
+
+            toast({
+                title: "Request submitted",
+                description: "Processing your emergency request...",
+            });
+
+            setLocation(`/processing/${responseData.id}`);
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            toast({
+                title: "Error",
+                description: "Failed to submit your request. Please try again.",
+                variant: "destructive",
+            });
+        }
+    };
+
 
   const getFormFields = () => {
     switch (emergencyType.id) {
