@@ -15,7 +15,7 @@ This project allows emergency data to be submitted from a web application and tr
 ---
 
 ## 📁 Folder Structure
-
+```
 SkyBridge/
 ├── client/ # React frontend using Vite
 ├── server/ # Node.js Express backend with TypeScript
@@ -24,7 +24,7 @@ SkyBridge/
 ├── tsconfig.json
 ├── vite.config.ts
 └── README.md
-
+```
 ## 🚀 How to Run the Application
 ### 🐧 Linux / macOS
 
