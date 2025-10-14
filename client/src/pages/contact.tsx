@@ -81,9 +81,9 @@ const Contact = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Email Us</h3>
               <p className="text-gray-700 mb-3">Our team is ready to help</p>
-              <a href="mailto:info@skybridge.com" className="text-primary-600 hover:underline">
+              <Link href="mailto:info@skybridge.com" className="text-primary-600 hover:underline">
                 info@skybridge.com
-              </a>
+              </Link>
             </CardContent>
           </Card>
           
@@ -94,9 +94,9 @@ const Contact = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Call Us</h3>
               <p className="text-gray-700 mb-3">24/7 support available</p>
-              <a href="tel:+389-77 123456-SkyBridge" className="text-secondary-600 hover:underline">
+              <Link href="tel:+389-77 123456-SkyBridge" className="text-secondary-600 hover:underline">
                 +389-77 123456 SkyBridge
-              </a>
+              </Link>
             </CardContent>
           </Card>
           

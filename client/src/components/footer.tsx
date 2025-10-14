@@ -1,3 +1,5 @@
+import {Link} from "wouter";
+
 const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-8">
@@ -10,19 +12,19 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Emergency Services</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
-              <li><a href="/emergency-form/1" className="hover:text-white">Medical Consultation</a></li>
-              <li><a href="/emergency-form/2" className="hover:text-white">Hospital Finder</a></li>
-              <li><a href="/emergency-form/3" className="hover:text-white">Medicine Delivery</a></li>
-              <li><a href="/emergency-form/4" className="hover:text-white">Emergency Response</a></li>
+              <li><Link href="/emergency-form/1" className="hover:text-white">Medical Consultation</Link></li>
+              <li><Link href="/emergency-form/2" className="hover:text-white">Hospital Finder</Link></li>
+              <li><Link href="/emergency-form/3" className="hover:text-white">Medicine Delivery</Link></li>
+              <li><Link href="/emergency-form/4" className="hover:text-white">Emergency Response</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4">Legal & Support</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
-              <li><a href="#" className="hover:text-white">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-              <li><a href="/contact" className="hover:text-white">Contact Support</a></li>
-              <li><a href="#" className="hover:text-white">FAQ</a></li>
+              <li><Link href="#" className="hover:text-white">Terms of Service</Link></li>
+              <li><Link href="#" className="hover:text-white">Privacy Policy</Link></li>
+              <li><Link href="/contact" className="hover:text-white">Contact Support</Link></li>
+              <li><Link href="#" className="hover:text-white">FAQ</Link></li>
             </ul>
           </div>
         </div>

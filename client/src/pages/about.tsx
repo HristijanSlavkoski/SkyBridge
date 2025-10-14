@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet";
+import {Link} from "wouter";
 
 const About = () => {
   return (
@@ -61,12 +62,11 @@ const About = () => {
             We're constantly looking for partners, medical professionals, and technology experts to help us expand our reach and capabilities. If you're interested in contributing to our mission, please reach out through our contact page.
           </p>
           <div className="flex justify-center">
-            <a 
-              href="/contact" 
+            <Link href="/contact"
               className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-secondary-600 hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary-500"
             >
               Contact Us
-            </a>
+            </Link>
           </div>
         </div>
       </div>
