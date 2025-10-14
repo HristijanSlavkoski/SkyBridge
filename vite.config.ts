@@ -11,8 +11,10 @@ const __filename = fileURLToPath(import.meta.url);
 // …and then get its directory
 const __dirname = path.dirname(__filename);
 
+const isProd = process.env.NODE_ENV === 'production';
+
 export default defineConfig({
-  base: "/SkyBridge/",
+  base: isProd ? '/SkyBridge/' : '/',
   plugins: [
     react(),
     runtimeErrorOverlay(),

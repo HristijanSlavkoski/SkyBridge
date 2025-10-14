@@ -2,12 +2,14 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { ThemeProvider } from "next-themes";
-import { BrowserRouter } from "react-router-dom";
+import { Router } from "wouter";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 createRoot(document.getElementById("root")!).render(
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <Router base={base}>
         <ThemeProvider attribute="class" defaultTheme="light">
             <App />
         </ThemeProvider>
-    </BrowserRouter>
+    </Router>
 );
