@@ -30,7 +30,8 @@ jobs:
 
       - name: Build (Vite + server bundle)
         run: npm run build
-
+        env:
+          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
       - name: SPA fallback + nojekyll
         run: |
           cp dist/public/index.html dist/public/404.html
