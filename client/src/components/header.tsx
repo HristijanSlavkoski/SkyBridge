@@ -12,7 +12,7 @@ const Header = () => {
   return (
     <header className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center">
+        <Link href="" className="flex items-center">
           <img src={`${import.meta.env.BASE_URL}logo.png`} alt="SkyBridge Logo" className="mr-3 w-20 h-15" />
           <div>
             <h1 className="text-xl font-bold text-gray-900">SkyBridge</h1>
@@ -22,9 +22,9 @@ const Header = () => {
         
         <nav className="hidden md:block">
           <ul className="flex space-x-10">
-            <li><Link href="/" className="text-gray-700 hover:text-black hover:bg-primary-600 px-4 py-2 rounded-md transition-colors font-medium">Home</Link></li>
-            <li><Link href="/about" className="text-gray-700 hover:text-black hover:bg-primary-600 px-4 py-2 rounded-md transition-colors font-medium">About</Link></li>
-            <li><Link href="/contact" className="text-gray-700 hover:black hover:bg-primary-600 px-4 py-2 rounded-md transition-colors font-medium">Contact</Link></li>
+            <li><Link href="" className="text-gray-700 hover:text-black hover:bg-primary-600 px-4 py-2 rounded-md transition-colors font-medium">Home</Link></li>
+            <li><Link href="about" className="text-gray-700 hover:text-black hover:bg-primary-600 px-4 py-2 rounded-md transition-colors font-medium">About</Link></li>
+            <li><Link href="contact" className="text-gray-700 hover:black hover:bg-primary-600 px-4 py-2 rounded-md transition-colors font-medium">Contact</Link></li>
           </ul>
         </nav>
         
@@ -43,9 +43,9 @@ const Header = () => {
       {mobileMenuOpen && (
         <div className="px-4 py-3 bg-gray-50 md:hidden">
           <ul className="space-y-2">
-            <li><Link href="/" className="block py-2 text-gray-700 hover:text-primary-600 font-medium">Home</Link></li>
-            <li><Link href="/about" className="block py-2 text-gray-700 hover:text-primary-600 font-medium">About</Link></li>
-            <li><Link href="/contact" className="block py-2 text-gray-700 hover:text-primary-600 font-medium">Contact</Link></li>
+            <li><Link href="" className="block py-2 text-gray-700 hover:text-primary-600 font-medium">Home</Link></li>
+            <li><Link href="about" className="block py-2 text-gray-700 hover:text-primary-600 font-medium">About</Link></li>
+            <li><Link href="contact" className="block py-2 text-gray-700 hover:text-primary-600 font-medium">Contact</Link></li>
           </ul>
         </div>
       )}
