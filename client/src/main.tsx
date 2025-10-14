@@ -4,8 +4,10 @@ import "./index.css";
 import { ThemeProvider } from "next-themes";
 import { Router } from "wouter";
 
+const base = (import.meta.env.BASE_URL || "/").replace(/\/+$/, ""); // "/SkyBridge" in prod, "" in dev
+
 createRoot(document.getElementById("root")!).render(
-    <Router base={import.meta.env.BASE_URL}>
+    <Router base={base}>
         <ThemeProvider attribute="class" defaultTheme="light">
             <App />
         </ThemeProvider>

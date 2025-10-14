@@ -37,7 +37,7 @@ const EmergencyCard = ({ type }: EmergencyCardProps) => {
   };
 
   return (
-    <Link href={`emergency-form/${type.id}`}>
+    <Link href={`/emergency-form/${type.id}`}>
       <a className="block h-full">
         <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl cursor-pointer">
           <div className={`p-1 ${headerColorClasses[type.id as keyof typeof headerColorClasses]}`}>
